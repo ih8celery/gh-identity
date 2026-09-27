@@ -1,9 +1,10 @@
 # Reads a guide like SETUP.md into steps and walks them. A step starts at a
 # "## N. Title" heading and ends at the next heading of any kind. Its
-# ```bash blocks are its code; every other line is its prose.
+# ```bash blocks are its code; every other line is its prose, including
+# other fenced blocks, whose lines are never read as headings.
 
 rb_parse() {
-  local file="$1" line i=-1 in_step=0 in_code=0
+  local file="$1" line i=-1 in_step=0 in_code=0 in_fence=0
   RB_NUM=() RB_TITLE=() RB_PROSE=() RB_CODE=()
   while IFS= read -r line || [ -n "$line" ]; do
     if [ "$in_code" = 1 ]; then
@@ -12,6 +13,11 @@ rb_parse() {
       elif [ "$in_step" = 1 ]; then
         RB_CODE[i]+="$line"$'\n'
       fi
+      continue
+    fi
+    if [ "$in_fence" = 1 ]; then
+      [ "$line" = '```' ] && in_fence=0
+      [ "$in_step" = 1 ] && RB_PROSE[i]+="$line"$'\n'
       continue
     fi
     case "$line" in
@@ -25,6 +31,9 @@ rb_parse() {
         RB_CODE[i]="" ;;
       '#'*) in_step=0 ;;
       '```bash') in_code=1 ;;
+      '```'*)
+        in_fence=1
+        [ "$in_step" = 1 ] && RB_PROSE[i]+="$line"$'\n' ;;
       *) [ "$in_step" = 1 ] && RB_PROSE[i]+="$line"$'\n' ;;
     esac
   done < "$file"

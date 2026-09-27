@@ -14,6 +14,13 @@ echo hello-from-zero
 
 Nothing to run here.
 
+What it prints looks like this:
+
+```text
+## 5. Not a step, just output
+# nor is this a heading
+```
+
 ## 2. Fails
 
 ```bash

@@ -29,6 +29,15 @@ setup() {
   [[ "${RB_PROSE[2]}" != *"Not a step"* ]] || false
 }
 
+@test "headings inside a non-bash fence are prose, not steps" {
+  rb_parse "$GH_IDENTITY_SETUP_FILE"
+  [ "$RB_COUNT" -eq 4 ]
+  [ "${RB_TITLE[1]}" = "Only words" ]
+  [[ "${RB_PROSE[1]}" == *"## 5. Not a step, just output"* ]] || false
+  [ -z "${RB_CODE[1]}" ]
+  [ "${RB_NUM[2]}" = 2 ]
+}
+
 @test "yes runs a step, skip does not, quit says how to resume" {
   run "$REPO/setup" <<'EOF'
 y
