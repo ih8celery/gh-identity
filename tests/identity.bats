@@ -81,3 +81,59 @@ setup() {
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+
+@test "an account file is loaded, with ~/ expanded" {
+  export HOME="$BATS_TEST_TMPDIR/home"
+  mkdir -p "$HOME/.ssh"
+  : > "$HOME/.ssh/id_alice"
+  printf 'email=a@example.com\nname=Alice A\nssh_key=~/.ssh/id_alice\n' \
+    > "$GH_IDENTITY_CONFIG/accounts/alice"
+  gid_load alice
+  [ "$GID_EMAIL" = "a@example.com" ]
+  [ "$GID_NAME" = "Alice A" ]
+  [ "$GID_SSH_KEY" = "$HOME/.ssh/id_alice" ]
+}
+
+@test "a login with no account file is a hard stop naming the file" {
+  run gid_load alice
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"$GH_IDENTITY_CONFIG/accounts/alice"* ]]
+}
+
+@test "an account file without an email is a hard stop" {
+  write_account alice ""
+  run gid_load alice
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"email="* ]]
+}
+
+@test "an account whose key is missing is a hard stop" {
+  write_account alice a@example.com
+  rm "$BATS_TEST_TMPDIR/keys/id_alice"
+  run gid_load alice
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"SSH key"*"does not exist"* ]]
+}
+
+@test "the real command is the first on PATH that is not the wrapper" {
+  run gid_real git "$REPO/bin/git"
+  [ "$output" = "$FAKE_BIN/git" ]
+}
+
+@test "the real command skips the wrapper reached through a symlink" {
+  mkdir -p "$BATS_TEST_TMPDIR/links"
+  ln -s "$FAKE_BIN/git" "$BATS_TEST_TMPDIR/links/git"
+  PATH="$BATS_TEST_TMPDIR/links:$PATH:$BATS_TEST_TMPDIR/links"
+  run gid_real git "$BATS_TEST_TMPDIR/links/git"
+  [ "$status" -eq 0 ]
+  [ "$output" = "/usr/bin/git" ]
+}
+
+@test "no real command is a hard stop" {
+  local old_path="$PATH"
+  PATH="$FAKE_BIN"
+  run gid_real git "$FAKE_BIN/git"
+  PATH="$old_path"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"no real git"* ]]
+}
