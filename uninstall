@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# ./uninstall git|gh|both — remove our links from ~/.local/bin (or
+# $GH_IDENTITY_BIN). gh-identity goes once neither wrapper is left.
+# Never removes a file that is not one of our links.
+GID_HOME="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+. "$GID_HOME/lib/identity.sh"
+. "$GID_HOME/lib/links.sh"
+
+targets="$(gid_targets "${1:-}")" || exit 2
+bin="$(gid_bin_dir)"
+status=0
+
+for name in $targets; do
+  link="$bin/$name"
+  if gid_owned "$link" "$name"; then
+    rm -f "$link" && echo "removed: $link"
+  elif [ -e "$link" ] || [ -L "$link" ]; then
+    gid_err "$link is not gh-identity's; leaving it alone"
+    status=1
+  else
+    echo "not installed: $link"
+  fi
+done
+
+if ! gid_owned "$bin/git" git && ! gid_owned "$bin/gh" gh &&
+  gid_owned "$bin/gh-identity" gh-identity; then
+  rm -f "$bin/gh-identity" && echo "removed: $bin/gh-identity"
+fi
+exit "$status"
