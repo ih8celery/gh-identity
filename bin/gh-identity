@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# gh-identity which [folder]   who git and gh would act as, and if that works
+# gh-identity configure        ask for both accounts and write their settings
+GID_HOME="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+. "$GID_HOME/lib/identity.sh"
+. "$GID_HOME/lib/configure.sh"
+
+usage() {
+  cat <<'EOF'
+usage: gh-identity which [folder]   who git and gh would act as there
+       gh-identity configure        set up both accounts' details
+EOF
+}
+
+gid_which() {
+  local dir login real_gh
+  dir="$(cd "${1:-$PWD}" && pwd)" || return 1
+  printf 'folder:   %s\n' "$dir"
+  login="$(gid_choose "$dir")" || return 1
+  if [ -z "$login" ]; then
+    printf 'account:  no opinion; git and gh run untouched\n'
+    return 0
+  fi
+  printf 'account:  %s\n' "$login"
+  gid_load "$login" || return 1
+  printf 'email:    %s\n' "$GID_EMAIL"
+  local keeps_own="(git's own user.name)"
+  printf 'name:     %s\n' "${GID_NAME:-$keeps_own}"
+  printf 'ssh key:  %s\n' "$GID_SSH_KEY"
+  real_gh="$(gid_real gh "$GID_HOME/bin/gh")" || return 1
+  if "$real_gh" auth token --hostname github.com --user "$login" >/dev/null 2>&1; then
+    printf 'gh:       signed in\n'
+  else
+    printf 'gh:       NOT signed in (SETUP.md step 3)\n'
+    return 1
+  fi
+}
+
+case "${1:-}" in
+  which) shift; gid_which "$@" ;;
+  configure) gid_configure ;;
+  *) usage >&2; exit 2 ;;
+esac
