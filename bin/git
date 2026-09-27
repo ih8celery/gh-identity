@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# git, acting as whichever GitHub account the chooser picks for the folder
+# it acts in. With no pick, the real git runs untouched.
+GID_HOME="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+. "$GID_HOME/lib/identity.sh"
+
+real="$(gid_real git "${BASH_SOURCE[0]}")" || exit 127
+login="$(gid_choose "$(gid_git_dir "$@")")" || exit 1
+if [ -n "$login" ]; then
+  gid_load "$login" || exit 1
+  gid_export_git_env
+fi
+exec "$real" "$@"
