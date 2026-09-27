@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# gh, acting as whichever GitHub account the chooser picks for this folder.
+# The token comes from gh's own keychain; gh-identity stores none.
+# `gh auth ...` always runs untouched: signing in, switching and checking
+# accounts must see gh's own state, not a token set here.
+GID_HOME="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+. "$GID_HOME/lib/identity.sh"
+
+real="$(gid_real gh "${BASH_SOURCE[0]}")" || exit 127
+[ "${1:-}" = auth ] && exec "$real" "$@"
+
+login="$(gid_choose "$PWD")" || exit 1
+if [ -n "$login" ]; then
+  gid_load "$login" || exit 1
+  gid_export_git_env
+  if ! GH_TOKEN="$("$real" auth token --hostname github.com --user "$login" 2>/dev/null)"; then
+    gid_err "$login is not signed in to gh (SETUP.md step 3)"
+    exit 1
+  fi
+  export GH_TOKEN
+fi
+exec "$real" "$@"
