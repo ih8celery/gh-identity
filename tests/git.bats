@@ -49,8 +49,8 @@ setup() {
   write_chooser 'echo alice'
   run "$GIT" push
   [ "$status" -eq 1 ]
-  [[ "$output" != *"ran real git"* ]]
-  [[ "$output" == *"accounts/alice"* ]]
+  [[ "$output" != *"ran real git"* ]] || false
+  [[ "$output" == *"accounts/alice"* ]] || false
 }
 
 @test "the real git's exit status comes back unchanged" {

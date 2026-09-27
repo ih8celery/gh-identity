@@ -13,7 +13,7 @@ setup() {
 @test "which, with no opinion, says git and gh run untouched" {
   run "$GI" which
   [ "$status" -eq 0 ]
-  [[ "$output" == *"no opinion"* ]]
+  [[ "$output" == *"no opinion"* ]] || false
 }
 
 @test "which shows the chosen account and that it is ready" {
@@ -22,10 +22,10 @@ setup() {
   sign_in alice
   run "$GI" which
   [ "$status" -eq 0 ]
-  [[ "$output" == *"account:  alice"* ]]
-  [[ "$output" == *"email:    a@example.com"* ]]
-  [[ "$output" == *"ssh key:  $BATS_TEST_TMPDIR/keys/id_alice"* ]]
-  [[ "$output" == *"gh:       signed in"* ]]
+  [[ "$output" == *"account:  alice"* ]] || false
+  [[ "$output" == *"email:    a@example.com"* ]] || false
+  [[ "$output" == *"ssh key:  $BATS_TEST_TMPDIR/keys/id_alice"* ]] || false
+  [[ "$output" == *"gh:       signed in"* ]] || false
 }
 
 @test "which fails when the chosen account is not signed in" {
@@ -33,7 +33,7 @@ setup() {
   write_chooser 'echo alice'
   run "$GI" which
   [ "$status" -eq 1 ]
-  [[ "$output" == *"NOT signed in"* ]]
+  [[ "$output" == *"NOT signed in"* ]] || false
 }
 
 @test "which takes a folder" {
@@ -42,13 +42,13 @@ setup() {
   write_chooser 'case "$PWD" in */alice-project) echo alice ;; esac'
   sign_in alice
   run "$GI" which "$WORK/alice-project"
-  [[ "$output" == *"account:  alice"* ]]
+  [[ "$output" == *"account:  alice"* ]] || false
 }
 
 @test "no subcommand prints usage and fails" {
   run "$GI"
   [ "$status" -eq 2 ]
-  [[ "$output" == *"usage"* ]]
+  [[ "$output" == *"usage"* ]] || false
 }
 
 @test "configure writes both account files and setup.env" {
@@ -95,7 +95,7 @@ EOF
 me@example.com
 EOF
   [ "$status" -eq 1 ]
-  [[ "$output" == *"not a GitHub login"* ]]
+  [[ "$output" == *"not a GitHub login"* ]] || false
 }
 
 @test "configure refuses the same login twice" {
@@ -110,5 +110,5 @@ a@example.com
 
 EOF
   [ "$status" -eq 1 ]
-  [[ "$output" == *"must differ"* ]]
+  [[ "$output" == *"must differ"* ]] || false
 }

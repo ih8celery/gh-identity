@@ -24,9 +24,9 @@ setup() {
 
 @test "prose keeps the words and leaves out the code" {
   rb_parse "$GH_IDENTITY_SETUP_FILE"
-  [[ "${RB_PROSE[0]}" == *"Say hello."* ]]
-  [[ "${RB_PROSE[0]}" != *"echo"* ]]
-  [[ "${RB_PROSE[2]}" != *"Not a step"* ]]
+  [[ "${RB_PROSE[0]}" == *"Say hello."* ]] || false
+  [[ "${RB_PROSE[0]}" != *"echo"* ]] || false
+  [[ "${RB_PROSE[2]}" != *"Not a step"* ]] || false
 }
 
 @test "yes runs a step, skip does not, quit says how to resume" {
@@ -35,9 +35,9 @@ y
 q
 EOF
   [ "$status" -eq 0 ]
-  [[ "$output" == *"hello-from-zero"* ]]
-  [[ "$output" != *"about-to-fail"* ]]
-  [[ "$output" == *"./setup --from 2"* ]]
+  [[ "$output" == *"hello-from-zero"* ]] || false
+  [ "$(grep -c about-to-fail <<<"$output")" -eq 1 ]  # shown before the question, never run
+  [[ "$output" == *"./setup --from 2"* ]] || false
 }
 
 @test "--from starts at that step" {
@@ -45,9 +45,9 @@ EOF
 y
 EOF
   [ "$status" -eq 0 ]
-  [[ "$output" != *"hello-from-zero"* ]]
-  [[ "$output" == *"hello-from-ten"* ]]
-  [[ "$output" == *"All steps done"* ]]
+  [[ "$output" != *"hello-from-zero"* ]] || false
+  [[ "$output" == *"hello-from-ten"* ]] || false
+  [[ "$output" == *"All steps done"* ]] || false
 }
 
 @test "a failed step can be retried, then skipped" {
@@ -59,8 +59,8 @@ s
 EOF
   [ "$status" -eq 0 ]
   [ "$(grep -c about-to-fail <<<"$output")" -eq 3 ]
-  [[ "$output" == *"Step 2 failed (exit 4)"* ]]
-  [[ "$output" != *"never-run"* ]]
+  [[ "$output" == *"Step 2 failed (exit 4)"* ]] || false
+  [[ "$output" != *"never-run"* ]] || false
 }
 
 @test "quitting after a failure fails" {

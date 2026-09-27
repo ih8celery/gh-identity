@@ -29,7 +29,7 @@ setup() {
   "$REPO/install" both
   run "$REPO/install" both
   [ "$status" -eq 0 ]
-  [[ "$output" == *"already linked"* ]]
+  [[ "$output" == *"already linked"* ]] || false
 }
 
 @test "install never replaces a file that is not ours" {
@@ -43,7 +43,7 @@ setup() {
 @test "install warns when another git comes first on PATH" {
   PATH="$FAKE_BIN:$PATH"
   run "$REPO/install" git
-  [[ "$output" == *"comes first on PATH"* ]]
+  [[ "$output" == *"comes first on PATH"* ]] || false
 }
 
 @test "install and uninstall need to be told what" {

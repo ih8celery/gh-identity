@@ -32,8 +32,8 @@ setup() {
   write_chooser 'echo alice'
   run "$GH" pr create
   [ "$status" -eq 1 ]
-  [[ "$output" != *"ran real gh"* ]]
-  [[ "$output" == *"alice is not signed in"* ]]
+  [[ "$output" != *"ran real gh"* ]] || false
+  [[ "$output" == *"alice is not signed in"* ]] || false
 }
 
 @test "gh auth runs untouched even where the chosen account is broken" {

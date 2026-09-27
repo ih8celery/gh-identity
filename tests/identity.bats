@@ -59,7 +59,7 @@ setup() {
   write_chooser 'return 3'
   run gid_choose "$WORK"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"chooser"*"failed"* ]]
+  [[ "$output" == *"chooser"*"failed"* ]] || false
 }
 
 @test "a chooser file without the function stops everything" {
@@ -72,7 +72,7 @@ setup() {
   write_chooser 'echo me@example.com'
   run gid_choose "$WORK"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"not a GitHub login"* ]]
+  [[ "$output" == *"not a GitHub login"* ]] || false
 }
 
 @test "a folder that does not exist is no opinion, left for git to report" {
@@ -97,14 +97,14 @@ setup() {
 @test "a login with no account file is a hard stop naming the file" {
   run gid_load alice
   [ "$status" -eq 1 ]
-  [[ "$output" == *"$GH_IDENTITY_CONFIG/accounts/alice"* ]]
+  [[ "$output" == *"$GH_IDENTITY_CONFIG/accounts/alice"* ]] || false
 }
 
 @test "an account file without an email is a hard stop" {
   write_account alice ""
   run gid_load alice
   [ "$status" -eq 1 ]
-  [[ "$output" == *"email="* ]]
+  [[ "$output" == *"email="* ]] || false
 }
 
 @test "an account whose key is missing is a hard stop" {
@@ -112,7 +112,7 @@ setup() {
   rm "$BATS_TEST_TMPDIR/keys/id_alice"
   run gid_load alice
   [ "$status" -eq 1 ]
-  [[ "$output" == *"SSH key"*"does not exist"* ]]
+  [[ "$output" == *"SSH key"*"does not exist"* ]] || false
 }
 
 @test "the real command is the first on PATH that is not the wrapper" {
@@ -135,5 +135,5 @@ setup() {
   run gid_real git "$FAKE_BIN/git"
   PATH="$old_path"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"no real git"* ]]
+  [[ "$output" == *"no real git"* ]] || false
 }
