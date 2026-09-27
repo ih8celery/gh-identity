@@ -94,12 +94,14 @@ prevent, so it never does.
 `SETUP.md` is a normal guide: prose, then a fenced `bash` block per step. It
 can be read, copied from one block at a time, or run with `./setup`, which
 walks the same file: shows each step's heading and prose, asks
-run / skip / quit, and runs the block. All blocks run in one shell session,
-so variables set early carry through. `./setup --from N` resumes at step N.
+run / skip / quit, and runs the block. Each block runs in its own `bash`
+from the repo folder and loads `setup.env` itself, so a block copied into a
+fresh terminal behaves exactly as it does under `./setup`, and
+`./setup --from N` resumes at step N with nothing lost.
 
-Step 0 asks for the logins, emails and key path with `read` prompts and writes
-the config files; a reader copying by hand edits the variables at the top of
-the block instead. No personal values appear in the file.
+Step 0 runs `gh-identity configure`, which asks for the logins, emails and
+key paths and writes the account files and `setup.env`. No personal values
+appear in `SETUP.md`.
 
 The steps: fill in your details; check prerequisites; confirm the first
 account is signed in to `gh`; sign the second one in and switch the active
