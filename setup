@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# ./setup [--from N] — walk SETUP.md: show each step, ask, run its block.
+# Each block runs in its own bash from this folder, exactly as if pasted
+# into a fresh terminal here, so SETUP.md is the whole truth.
+GID_HOME="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+. "$GID_HOME/lib/identity.sh"
+. "$GID_HOME/lib/runbook.sh"
+cd "$GID_HOME" || exit 1
+
+from=0
+case "${1:-}" in
+  --from)
+    from="${2:-}"
+    case "$from" in
+      "" | *[!0-9]*)
+        gid_err "--from needs a step number"
+        exit 2 ;;
+    esac ;;
+  "") ;;
+  *)
+    echo "usage: ./setup [--from N]" >&2
+    exit 2 ;;
+esac
+
+rb_parse "${GH_IDENTITY_SETUP_FILE:-SETUP.md}"
+rb_run "$from"
