@@ -5,3 +5,14 @@
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Local agent and project tooling; not part of the tool.
+.agents/
+.beads/
+.beads.gate.lock
+.claude/
+.codex/
+AGENTS.md
+CLAUDE.md
+docs/superpowers/
+project-manifest.json
