@@ -53,8 +53,15 @@ setup.env           what SETUP.md's steps need
 - In a chosen project, that account's key is used for every ssh remote, not
   only github.com.
 - github.com only, over ssh.
+- macOS 12.3 or later: the scripts use `readlink -f`, which older macOS
+  lacks.
 
 ## Developing
 
 `just test` runs the bats suites against fake `git` and `gh`; nothing touches
-a real account. bash 3.2, since that is macOS's `/bin/bash`.
+a real account. bash 3.2, since that is macOS's `/bin/bash`. The design and
+its reasons are in `docs/design.md`.
+
+## License
+
+MIT. See `LICENSE`.

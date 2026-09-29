@@ -1,5 +1,4 @@
 # Development commands for gh-identity.
-# The contract behind these names: ~/.config/project-monitor/justfile.template
 # bash 3.2 and bats. Nothing to build or install to develop it.
 
 # List commands without starting work.
